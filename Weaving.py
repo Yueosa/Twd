@@ -6,6 +6,11 @@ import json
 from tqdm import tqdm as tq
 
 
+class World:
+    def __init__(self, world):
+        self.world = world
+
+
 class Weave:
     def Now_Path(self) -> str :
         return os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +28,7 @@ class Weave:
         return len(world[0]), len(world)
 
     def Read_Json(self) -> dict:
-        with open('Prism_Of_Creation.json', 'r', encoding='utf-8') as file:
+        with open('cornerstone/Prism_OfCreation.json', 'r', encoding='utf-8') as file:
             return json.load(file)
 
     def Image(self, world_length :int,world_width :int, color_variety :int = 4) ->np.ndarray:
@@ -59,7 +64,7 @@ def Save_path(weave :Weave) -> str:
 
 
 def Save_image(weave :Weave, world :list) -> np.ndarray:
-    return weave.NumPy(NumPy_matrix(world), weave.Read_Json(), NumPy_image(world), *weave.Read_List(world))
+    return weave.NumPy(NumPy_matrix(weave, world), weave.Read_Json(), NumPy_image(weave, world), *weave.Read_List(world))
 
 
 if __name__=="__main__":
