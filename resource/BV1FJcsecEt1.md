@@ -1,4 +1,4 @@
-# 内容摘自BiliBili视频简介与内容
+# 内容摘自BiliBili视频
 点击跳转[探索泰拉瑞亚世界的奥秘！解析107个世界生成步骤！](https://www.bilibili.com/video/BV1FJcsecEt1?vd_source=af214977129a4a7d5b517650d65b0bfe)
 
 ## 世界生成步骤
