@@ -6,7 +6,7 @@ import os
 # 获取当前脚本的目录
 script_dir = os.path.dirname(__file__)
 # 构建Color_Lexicon.json的绝对路径
-json_path = os.path.join(script_dir, '../cornerstone/Color_Lexicon.json')
+json_path = os.path.join(script_dir, '../../cornerstone/Color_Lexicon.json')
 
 # 读取颜色数据
 with open(json_path, 'r', encoding='utf-8') as file:
