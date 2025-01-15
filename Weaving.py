@@ -85,3 +85,4 @@ if __name__=="__main__":
     world = [[1, 2, 3], [4, 5, 6]]
     weave = Weave()
     weave.Save(Save_image(weave, world))
+# 需要更改，主要是读取与填充颜色方面可能有bug导致读取填充了错误的颜色，帮助请查看Tool分支的ColorMap文件
