@@ -14,18 +14,6 @@ class World:
 
 class Weave:
     """对矩阵地图进行可视化"""
-    def Now_Path(self) -> str :
-        """返回当前路径"""
-        return os.path.dirname(os.path.abspath(__file__))
-
-    def Save_Path(self, now_dir :str) -> str:
-        """拼接Plain路径"""
-        return os.path.join(now_dir, 'Plain')
-
-    def Save_Name(self, path :str, filename :str) -> str:
-        """拼接文件名"""
-        return os.path.join(path, filename)
-
     def List_NumPy(self, world :list) -> np.ndarray:
         """生成NumPy矩阵"""
         return np.array(world)
@@ -36,7 +24,8 @@ class Weave:
 
     def Read_Json(self) -> dict:
         """读取颜色配置"""
-        with open('cornerstone/Prism_OfCreation.json', 'r', encoding='utf-8') as file:
+        json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cornerstone', 'Prism_Of_Creation.json')
+        with open(json_path, 'r', encoding='utf-8') as file:
             return json.load(file)
 
     def Image(self, world_length :int,world_width :int, color_variety :int = 4) ->np.ndarray:
@@ -47,12 +36,27 @@ class Weave:
         """向空地图里填色"""
         for i in tq(range(world_width)):
             for j in range(world_length):
-                image[i, j] = color[matrix[i, j]]
+                image[i, j] = color[str(matrix[i, j])]
         return image
 
-    def Save(self, path :str, image :np.ndarray, filename :str ='matrix.png') -> None:
+    def FileName(self) -> str:
+        """生成递增的文件名"""
+        if not os.path.exists('Plain'):
+            os.makedirs('Plain')
+            return 'matrix_0001.png'
+        
+        files = [f for f in os.listdir('Plain') if f.startswith('matrix_') and f.endswith('.png')]
+        if not files:
+            return 'matrix_0001.png'
+        
+        numbers = [int(f.split('_')[1].split('.')[0]) for f in files]
+        next_number = max(numbers) + 1
+        return f'matrix_{next_number:04d}.png'
+
+    def Save(self, image :np.ndarray) -> None:
         """保存地图为png"""
-        save_path = self.Save_Name(path, filename)
+        filename = self.FileName()
+        save_path = os.path.join('Plain', filename)
         try:
             if cv.imwrite(save_path, image):
                 print(f'successfully saved to {save_path}')
@@ -69,12 +73,7 @@ def NumPy_matrix(weave :Weave, world :list) -> np.ndarray:
 
 def NumPy_image(weave :Weave, world :list) -> np.ndarray:
     """集合函数: 生成空地图"""
-    return weave.Image(*Read_List(world))
-
-
-def Save_path(weave :Weave) -> str:
-    """集合函数: 生成保存路径"""
-    return weave.Save_Path(weave.Now_Path())
+    return weave.Image(*weave.Read_List(world))
 
 
 def Save_image(weave :Weave, world :list) -> np.ndarray:
@@ -83,5 +82,6 @@ def Save_image(weave :Weave, world :list) -> np.ndarray:
 
 
 if __name__=="__main__":
+    world = [[1, 2, 3], [4, 5, 6]]
     weave = Weave()
-    Save(Save_path(weave), Save_image(weave, world))
+    weave.Save(Save_image(weave, world))
