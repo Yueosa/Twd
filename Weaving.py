@@ -36,7 +36,8 @@ class Weave:
 
     def Read_Json(self) -> dict:
         """读取颜色配置"""
-        with open('cornerstone/Prism_OfCreation.json', 'r', encoding='utf-8') as file:
+        json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cornerstone', 'Prism_Of_Creation.json')
+        with open(json_path, 'r', encoding='utf-8') as file:
             return json.load(file)
 
     def Image(self, world_length :int,world_width :int, color_variety :int = 4) ->np.ndarray:
@@ -47,14 +48,14 @@ class Weave:
         """向空地图里填色"""
         for i in tq(range(world_width)):
             for j in range(world_length):
-                image[i, j] = color[matrix[i, j]]
+                image[i, j] = color[str(matrix[i, j])]  # 将键转换为字符串
         return image
 
     def Save(self, path :str, image :np.ndarray, filename :str ='matrix.png') -> None:
         """保存地图为png"""
         save_path = self.Save_Name(path, filename)
         try:
-            if cv.imwrite(save_path, image):
+            if cv.imwrite('Plain/test.png', image):
                 print(f'successfully saved to {save_path}')
             else:
                 raise ValueError(f"Save failed")
@@ -69,7 +70,7 @@ def NumPy_matrix(weave :Weave, world :list) -> np.ndarray:
 
 def NumPy_image(weave :Weave, world :list) -> np.ndarray:
     """集合函数: 生成空地图"""
-    return weave.Image(*Read_List(world))
+    return weave.Image(*weave.Read_List(world))  # 修复参数传递错误
 
 
 def Save_path(weave :Weave) -> str:
@@ -83,5 +84,6 @@ def Save_image(weave :Weave, world :list) -> np.ndarray:
 
 
 if __name__=="__main__":
+    world = [[1, 2, 3], [4, 5, 6]]  # 添加示例世界数据
     weave = Weave()
-    Save(Save_path(weave), Save_image(weave, world))
+    weave.Save(Save_path(weave), Save_image(weave, world))  # 修复函数调用错误
