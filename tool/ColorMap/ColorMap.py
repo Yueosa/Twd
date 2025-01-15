@@ -41,3 +41,4 @@ image_bgr = cv2.cvtColor(image, cv2.COLOR_RGBA2BGRA)
 cv2.imshow('Color Map', image_bgr)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+# 这里的颜色显示似乎与MainPy分支的Weaving文件不同，关联文件：Cornerstone分支的Color_Lexicon.json、Prism_OfCreation
