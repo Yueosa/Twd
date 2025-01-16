@@ -72,11 +72,12 @@ class Terrain:
         print("正在向洞穴中添加泥土...")
 
         for i in tqdm(range(0, y_num)):
-            print(f"子进度条 {i}:\n")
+            print(f"\n子进度条 {i}:\n")
             for j in tqdm(range(0, x_num)):
                 x_start = j * 100; x_stop = min((j + 1) * 100, list_length)
                 y_start = i * 100; y_stop = min((i + 1) * 100, list_width)
 
+                print("正在随机插入泥土...")
                 new_matrix = self.DiffusionDot(matrix)
                 self.MatrixInsert(new_matrix, x_start, x_stop, y_start, y_stop)
 
@@ -96,7 +97,8 @@ class Terrain:
         return list
 
     def MatrixInsert(self, new_matrix: list, xt: int, xp: int, yt: int, yp: int) -> list:
-        for i in range(yt, yp):
+        print('/033[31m 正在更新区块 /033[0m')
+        for i in tqdm(range(yt, yp)):
             for j in range(xt, xp):
                 self.world[i][j] = new_matrix[i - yt][j - xt]
 
