@@ -44,7 +44,7 @@ class Weave:
         matrix: 包含数字的NumPy数组
         color: 颜色字典 (从Prism_Of_Creation.json读取)
         """
-        for i in tq(range(world_width)):
+        for i in tq(range(world_width), desc="最后步骤..."):
             # print('the i:', i)
             for j in range(world_length):
                 # print('the j:', j)
