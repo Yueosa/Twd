@@ -9,7 +9,7 @@ import Weaving
 
 # 主程序
 Rworld, state = Oracles.Reset.Create()
-Tworld = Oracles.Terrain.Create(Rworld)
+Tworld, Rstate= Oracles.Terrain.Create(Rworld)
 print('正在生成洞穴...')
 print(Tworld)
 weave = Weaving.Weave()
