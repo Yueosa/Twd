@@ -40,6 +40,7 @@ class Terrain:
 
     def Start(self) -> None:
         self.Terrain_state = self.CaveStone()
+        self.CaveSoil()
 
     def CaveStone(self) -> bool:
         try:
