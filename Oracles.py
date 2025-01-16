@@ -1,5 +1,6 @@
 # 生成世界的算法集
 import random as rd
+from tqdm import tqdm
 
 
 class Reset:
@@ -67,8 +68,9 @@ class Terrain:
         list_length = len(self.world[0]); list_width = len(self.world)
         x_num = -(list_length // -100); y_num = -(list_width // -100)
         matrix = [[4 for _ in range(100)] for _ in range(100)]
+        print("正在向洞穴中添加泥土...")
 
-        for i in range(0, y_num):
+        for i in tqdm(range(0, y_num)):
             for j in range(0, x_num):
                 x_start = j * 100; x_stop = min((j + 1) * 100, list_length)
                 y_start = i * 100; y_stop = min((i + 1) * 100, list_width)
