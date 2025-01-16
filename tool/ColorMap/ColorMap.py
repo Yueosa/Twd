@@ -11,6 +11,7 @@ json_path = os.path.join(script_dir, '../../cornerstone/Color_Lexicon.json')
 # 读取颜色数据
 with open(json_path, 'r', encoding='utf-8') as file:
     color_data = json.load(file)
+    print('load data:\n', color_data)
 
 # 创建一个空白画布
 height, width = 600, 600
@@ -25,7 +26,7 @@ block_size = min(height // rows, width // cols)  # 每个方块的大小
 # 提取所有颜色的RGBA值，并将它们显示在画布上
 for i, (key, value) in enumerate(color_data.items()):
     rgba = value['rgba']
-    print(rgba)
+    print('the rgba:\n', rgba)
     row = i // cols
     col = i % cols
     top_left = (col * block_size, row * block_size)
