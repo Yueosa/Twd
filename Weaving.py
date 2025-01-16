@@ -45,19 +45,18 @@ class Weave:
         color: 颜色字典 (从Prism_Of_Creation.json读取)
         """
         for i in tq(range(world_width)):
-            print('the i:', i)
+            # print('the i:', i)
             for j in range(world_length):
-                print('the j:', j)
+                # print('the j:', j)
                 block_id = str(int(matrix[i, j]))
-                print('the block_id:', block_id)
+                # print('the block_id:', block_id)
                 if block_id in color:
                     rgba = color[block_id]
                     bgra = [rgba[2], rgba[1], rgba[0], rgba[3]]
                     image[i, j] = bgra
-                    print(f'Position ({i},{j}) - Block {block_id}: RGBA {color[block_id]} -> BGRA {bgra}')
+                    # print(f'Position ({i},{j}) - Block {block_id}: RGBA {color[block_id]} -> BGRA {bgra}')
                 else:
                     image[i, j] = [0, 0, 0, 0]
-                    print('error')
         return image
 
     def FileName(self) -> str:
