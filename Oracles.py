@@ -1,6 +1,7 @@
 # 生成世界的算法集
 import random as rd
 from tqdm import tqdm
+import time
 
 
 class Reset:
@@ -45,9 +46,8 @@ class Terrain:
 
     def CaveStone(self) -> bool:
         try:
-            print("开始生成洞穴层...")
             cave_world = self.world[420:]
-            for i in range(len(cave_world)):
+            for i in tqdm(range(len(cave_world)), desc="正在向洞穴层填充石块..."):
                 for j in range(len(cave_world[i])):
                     cave_world[i][j] = 4
             
@@ -57,7 +57,6 @@ class Terrain:
                 if 1 in self.world[i]:
                     print("洞穴层生成失败")
                     return False
-            print("洞穴层生成成功")
             return True
             
         except Exception as e:
@@ -70,46 +69,36 @@ class Terrain:
         list_width = len(cave_world)
         x_num = -(list_length // -100)
         y_num = -(list_width // -100)
-        print("\n正在向洞穴中添加泥土...\n")
 
-        for i in tqdm(range(y_num), desc="总进度"):
+        for i in tqdm(range(y_num), desc="正在向洞穴中添加泥土..."):
             for j in range(x_num):
                 matrix = [[4 for _ in range(100)] for _ in range(100)]
-                x_start = j * 100
-                x_stop = min((j + 1) * 100, list_length)
-                y_start = i * 100
-                y_stop = min((i + 1) * 100, list_width)
-
+                x_start = j * 100; x_stop = min((j + 1) * 100, list_length)
+                y_start = i * 100; y_stop = min((i + 1) * 100, list_width)
+                
                 new_matrix = self.DiffusionDot(matrix)
                 self.MatrixInsert(new_matrix, x_start, x_stop, y_start, y_stop)
 
     def DiffusionDot(self, matrix: list) -> list:
-        max_iterations = 10000  # 最大迭代次数
-        target_points = 5000    # 目标点数
-        points_placed = 0
+        max_iterations = 10000; target_points = 5000; points_placed = 0
         
-        print("\n正在随机插入泥土...")
-        for _ in tqdm(range(max_iterations), desc="扩散进度"):
+        for _ in range(max_iterations):
             if points_placed >= target_points:
                 break
                 
-            x = rd.randint(0, 99)
-            y = rd.randint(0, 99)
-            if matrix[x][y] != 3:
-                matrix[x][y] = 3
-                points_placed += 1
+            x = rd.randint(0, 99);  y = rd.randint(0, 99)
+            if matrix[x][y] == 4:
+                matrix[x][y] = 3; points_placed += 1
             
-            if should_return_false((points_placed / target_points) * 100):
+            if should_return_false((points_placed / max_iterations) * 100):
                 break
                 
         return matrix
 
     def MatrixInsert(self, new_matrix: list, xt: int, xp: int, yt: int, yp: int) -> list:
-        print("\n\033[31m 正在更新区块 \033[0m\n")
-        for i in tqdm(range(yt, yp)):
+        for i in range(yt, yp):
             for j in range(xt, xp):
-                self.world[i][j] = new_matrix[i - yt][j - xt]
-
+                self.world[420 +i][j] = new_matrix[i - yt][j - xt]
 
 
     def UnderGround(self, world :list) -> list:
@@ -120,12 +109,10 @@ class Terrain:
 
 
 def calculate_probability(input_num: float, k: float = 2) -> float:
-    if input_num < 35:
-        return 0.0
-    elif input_num > 50:
+    if input_num > 50:
         return 1.0
     
-    probability = ((input_num - 35) / (50 - 35)) ** k
+    probability = ((input_num - 40) / (50 - 40)) ** k
     return probability
 
 def should_return_false(input_num: float) -> bool:
