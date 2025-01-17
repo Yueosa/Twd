@@ -145,30 +145,14 @@ class Terrain:
         self.GroundTerrain(soil_thickness)
 
     def GroundTerrain(self, soil: int) -> None:
-        """地表地形生成
-        使用柏林噪声生成地形，并确保不影响基准线以下的区域
-        
-        Args:
-            soil: 土层厚度，决定基准线的位置(300 - soil)
-        """
         print("正在生成地表起伏...")
-        # 基准线设定为 300 - soil
         base_line = 300 - soil
         terrain_dict = Utils.theterrain(soil)
         
-        # 获取地形信息
         max_height = max(terrain_dict.values())
         print(f"地形最大隆起高度: {max_height}, 基准线高度: {base_line}")
         
-        # 生成地形
-        with tqdm(terrain_dict.items(), desc="正在生成地表地形...") as pbar:
-            for x, height in pbar:
-                if height > 0:  # 只处理隆起的部分
-                    # 从基准线开始向上填充
-                    start_y = base_line - height
-                    end_y = base_line
-                    
-                    # 确保只填充基准线以上的部分
-                    for y in range(start_y, end_y):
-                        if 0 <= y < base_line:  # 确保不会影响基准线以下的区域
-                            self.world[y][x] = 3
+        for key, value in terrain_dict.items():
+            line = base_line - value
+            for j in range(line, base_line):
+                self.world[j][key] = 3
