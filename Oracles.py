@@ -77,13 +77,17 @@ class Terrain:
                 self.MatrixInsert(new_matrix, x_start, x_stop, y_start, y_stop, 'Cave')
 
     def DiffusionDot(self, matrix: list, type: str) -> list:
-        max_iterations = 10000; target_points = 5000; points_placed = 0
+        max_iterations = 10000; target_points = 5000; points_placed = 0; x = -1; y = -1
         
         for _ in range(max_iterations):
             if points_placed >= target_points:
                 break
-                
-            x = rd.randint(0, 99);  y = rd.randint(0, 99)
+            
+            if x == -1 and y == -1:
+                x = rd.randint(0, 99);  y = rd.randint(0, 99)
+
+            x, y = Utils.random_the_num(x, y)
+
             if matrix[x][y] == 4 and type == 'Cave':
                 matrix[x][y] = 3; points_placed += 1
             elif matrix[x][y] == 3 and  type == 'UnderGround':
