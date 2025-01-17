@@ -47,6 +47,7 @@ class Terrain:
         self.CaveSoil()
         self.UnderGroundSoil()
         self.UnderGroundStone()
+        self.GroundSoil()
 
     def CaveStone(self) -> bool:
         cave_world = self.world[420:]
@@ -109,7 +110,7 @@ class Terrain:
                     self.world[300 +i][j] = new_matrix[i - yt][j - xt]
 
 
-    def UnderGroundSoil(self) -> list:
+    def UnderGroundSoil(self) -> bool:
         cave_world = self.world[300:420]
         for i in tqdm(range(len(cave_world)), desc="正在向地下层填充土块..."):
             for j in range(len(cave_world[i])):
@@ -118,7 +119,7 @@ class Terrain:
         self.world[300:420] = cave_world
         return True
 
-    def UnderGroundStone(self) -> list:
+    def UnderGroundStone(self) -> None:
         cave_world = self.world[300:420]
         list_length = len(cave_world[0]); list_width = len(cave_world)
         x_num = -(list_length // -100); y_num = -(list_width // -100)
@@ -131,3 +132,43 @@ class Terrain:
                 
                 new_matrix = self.DiffusionDot(matrix, 'UnderGround')
                 self.MatrixInsert(new_matrix, x_start, x_stop, y_start, y_stop, 'UnderGround')
+
+    def GroundSoil(self) -> None:
+        soil_thickness = rd.randint(0, 30)
+        start_layer = 300 - soil_thickness
+        end_layer = 300
+
+        for i in tqdm(range(start_layer, end_layer), desc="正在生成地表土层..."):
+            for j in range(4200):
+                self.world[i][j] = 3
+        
+        self.GroundTerrain(soil_thickness)
+
+    def GroundTerrain(self, soil: int) -> None:
+        """地表地形生成
+        使用柏林噪声生成地形，并确保不影响基准线以下的区域
+        
+        Args:
+            soil: 土层厚度，决定基准线的位置(300 - soil)
+        """
+        print("正在生成地表起伏...")
+        # 基准线设定为 300 - soil
+        base_line = 300 - soil
+        terrain_dict = Utils.theterrain(soil)
+        
+        # 获取地形信息
+        max_height = max(terrain_dict.values())
+        print(f"地形最大隆起高度: {max_height}, 基准线高度: {base_line}")
+        
+        # 生成地形
+        with tqdm(terrain_dict.items(), desc="正在生成地表地形...") as pbar:
+            for x, height in pbar:
+                if height > 0:  # 只处理隆起的部分
+                    # 从基准线开始向上填充
+                    start_y = base_line - height
+                    end_y = base_line
+                    
+                    # 确保只填充基准线以上的部分
+                    for y in range(start_y, end_y):
+                        if 0 <= y < base_line:  # 确保不会影响基准线以下的区域
+                            self.world[y][x] = 3
