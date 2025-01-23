@@ -28,49 +28,77 @@ def random_the_num(start_x: int, start_y: int) -> tuple[int, int]:
 
     return start_x, start_y
 
-def theterrain(soil: int, default_soil: int = 100):
+def theterrain(soil: int, default_soil: int = 100, before: int = 10, after: int = 10):
     max_soil = default_soil - soil
     terrain_dict = {}
-    first_num = 10
-    last_num = 10
-    rev = 0
-    rev_top = 0
-    rev_bottom = 0
-    top = False
-    bottom = False
-    go_top = False
-    go_bottom = False
+    tendency = 0
+    
     for i in range(4200):
-        first_num = last_num
-        if go_bottom:
-            jump_num = rd.randint(-2, 0)
-            rev_bottom += 1
-            if rev_bottom % 50 == 0:
-                go_bottom = False
-        elif go_top:
-            jump_num = rd.randint(0, 2)
-            rev_top += 1
-            if rev_top % 10 == 0:
-                go_top = False
+        if after >= max_soil:
+            tendency = -0.2
+        elif after <= 0:
+            tendency = 0.2
         else:
-            if top:
-                jump_num = rd.randint(0, 2)
-                top = False
-            elif bottom:
-                jump_num = rd.randint(-2, 0)
-                bottom = False
-            else:
-                jump_num = rd.randint(-2, 2)
-                if jump_num >= 0:
-                    top = True
-                elif jump_num < 0:
-                    bottom = True
-        last_num = first_num + jump_num
-        if last_num <= 0:
-            rev += 1
-            if rev % 20 == 0:
-                go_top = True
-        if last_num >= 100:
-            go_bottom = True
-        terrain_dict[i] = last_num
+            tendency = tendency * 0.8
+        
+        base_change = rd.randint(-2, 2)
+        trend_influence = rd.random() * tendency
+        height_change = int(base_change + trend_influence)
+        
+        after = max(0, min(max_soil, after + height_change))
+        terrain_dict[i] = after
+        
+    terrain_dict = smooth(terrain_dict)
     return terrain_dict
+
+def smooth(terrain: dict, iterations: int = 3) -> dict:
+    # 第一阶段：基础平滑
+    for _ in range(iterations):
+        new_terrain = terrain.copy()
+        for i in range(1, len(terrain) - 1):
+            # 使用移动平均进行平滑
+            new_terrain[i] = (terrain[i-1] + terrain[i] * 2 + terrain[i+1]) / 4
+        terrain = new_terrain
+
+    # 第二阶段：细分平滑
+    refined_terrain = {}
+    index = 0
+    
+    for i in range(len(terrain) - 1):
+        current = terrain[i]
+        next_val = terrain[i + 1]
+        
+        # 记录原始点
+        refined_terrain[index] = current
+        index += 1
+        
+        # 在两点之间插入中间点
+        if abs(current - next_val) > 3:  # 只在高度差较大时插值
+            mid_point = (current + next_val) / 2
+            # 添加一些随机扰动
+            mid_point += rd.uniform(-0.5, 0.5)
+            refined_terrain[index] = mid_point
+            index += 1
+    
+    # 添加最后一个点
+    refined_terrain[index] = terrain[len(terrain) - 1]
+    
+    # 第三阶段：最终平滑
+    final_terrain = {}
+    keys = sorted(refined_terrain.keys())
+    
+    for i in range(len(keys)):
+        key = keys[i]
+        if i == 0 or i == len(keys) - 1:
+            final_terrain[key] = refined_terrain[key]
+            continue
+            
+        # 使用加权平均进行最终平滑
+        prev_val = refined_terrain[keys[i-1]]
+        curr_val = refined_terrain[key]
+        next_val = refined_terrain[keys[i+1]]
+        
+        smoothed_val = (prev_val + 2 * curr_val + next_val) / 4
+        final_terrain[key] = int(smoothed_val)  # 转换为整数
+    
+    return final_terrain
