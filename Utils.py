@@ -36,6 +36,8 @@ def theterrain(soil: int, default_soil: int = 100):
     rev = 0
     rev_top = 0
     rev_bottom = 0
+    top = False
+    bottom = False
     go_top = False
     go_bottom = False
     for i in range(4200):
@@ -51,7 +53,18 @@ def theterrain(soil: int, default_soil: int = 100):
             if rev_top % 10 == 0:
                 go_top = False
         else:
-            jump_num = rd.randint(-2,2)
+            if top:
+                jump_num = rd.randint(0, 2)
+                top = False
+            elif bottom:
+                jump_num = rd.randint(-2, 0)
+                bottom = False
+            else:
+                jump_num = rd.randint(-2, 2)
+                if jump_num >= 0:
+                    top = True
+                elif jump_num < 0:
+                    bottom = True
         last_num = first_num + jump_num
         if last_num <= 0:
             rev += 1

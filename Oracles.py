@@ -145,14 +145,13 @@ class Terrain:
         self.GroundTerrain(soil_thickness)
 
     def GroundTerrain(self, soil: int) -> None:
-        print("正在生成地表起伏...")
         base_line = 300 - soil
         terrain_dict = Utils.theterrain(soil)
         
         max_height = max(terrain_dict.values())
         print(f"地形最大隆起高度: {max_height}, 基准线高度: {base_line}")
         
-        for key, value in terrain_dict.items():
+        for key, value in tqdm(terrain_dict.items(), desc='正在使世界变得凹凸'):
             line = base_line - value
             for j in range(line, base_line):
                 self.world[j][key] = 3
