@@ -47,6 +47,7 @@ class Terrain:
         self.CaveSoil()
         self.UnderGroundSoil()
         self.UnderGroundStone()
+        self.GroundSoil()
 
     def CaveStone(self) -> bool:
         cave_world = self.world[420:]
@@ -109,7 +110,7 @@ class Terrain:
                     self.world[300 +i][j] = new_matrix[i - yt][j - xt]
 
 
-    def UnderGroundSoil(self) -> list:
+    def UnderGroundSoil(self) -> bool:
         cave_world = self.world[300:420]
         for i in tqdm(range(len(cave_world)), desc="正在向地下层填充土块..."):
             for j in range(len(cave_world[i])):
@@ -118,7 +119,7 @@ class Terrain:
         self.world[300:420] = cave_world
         return True
 
-    def UnderGroundStone(self) -> list:
+    def UnderGroundStone(self) -> None:
         cave_world = self.world[300:420]
         list_length = len(cave_world[0]); list_width = len(cave_world)
         x_num = -(list_length // -100); y_num = -(list_width // -100)
@@ -131,3 +132,26 @@ class Terrain:
                 
                 new_matrix = self.DiffusionDot(matrix, 'UnderGround')
                 self.MatrixInsert(new_matrix, x_start, x_stop, y_start, y_stop, 'UnderGround')
+
+    def GroundSoil(self) -> None:
+        soil_thickness = rd.randint(0, 30)
+        start_layer = 300 - soil_thickness
+        end_layer = 300
+
+        for i in tqdm(range(start_layer, end_layer), desc="正在生成地表土层..."):
+            for j in range(4200):
+                self.world[i][j] = 3
+        
+        self.GroundTerrain(soil_thickness)
+
+    def GroundTerrain(self, soil: int) -> None:
+        base_line = 300 - soil
+        terrain_dict = Utils.theterrain(soil)
+        
+        max_height = max(terrain_dict.values())
+        print(f"地形最大隆起高度: {max_height}, 基准线高度: {base_line}")
+        
+        for key, value in tqdm(terrain_dict.items(), desc='正在使世界变得凹凸'):
+            line = base_line - value
+            for j in range(line, base_line):
+                self.world[j][key] = 3
