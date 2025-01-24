@@ -107,9 +107,35 @@
 
 ### 第一步 Reset（初始化）
 
-+ 新建一个 1200 × 4200 的列表，将其中填满空气方块
++ 新建一个 ***1200 × 4200*** 的列表，将其中填满 **空气方块**
 
+```python
+    class Reset:
+    "世界生成器, 初始化世界"
+    def __init__(self) -> None:
+        self.world, self.Reset_state = self.CreateWorld()
+
+    @classmethod
+    def Create(cls) -> tuple[list, bool]:
+        instance = cls()
+        return instance.world, instance.Reset_state
+
+    def CreateWorld(self) -> tuple[list, bool]:
+        print("正在初始化世界...")
+        self.world = [[1 for i in range(4200)] for j in range(1200)]
+        if len(self.world) == 1200 and len(self.world[0]) == 4200:
+            Reset_state = True
+        else:
+            Reset_state = False
+        return self.world, Reset_state
+```
 ### 第二步 Terrain（地形）
 
-+ 将洞穴层及以下的方块全部替换为石块
-+ 
+###### 生成洞穴层地形
++ 将 ***洞穴层*** 及以下的 **空气方块** 全部替换为 **石块**
++ 在 ***洞穴层*** 的 **石块** 中插入 **土块**
+###### 生成地下层地形
++ 将 ***地下层*** 所有 **空气方块** 全部替换为 **土块**
++ 在 ***地下层*** 的 **土块** 中插入 **石块**
+###### 生成地表层地形
++ 在 ***地表层*** 生成连续的 **土块**
