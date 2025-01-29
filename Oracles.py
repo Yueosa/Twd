@@ -37,11 +37,6 @@ class Terrain:
         else:
             print("世界初始化失败")
 
-    @classmethod
-    def Create(cls, world: list, Rstate: bool) -> tuple[list, bool]:
-        instance = cls(world, Rstate)
-        return instance.world, instance.Terrain_state
-
     def Start(self) -> None:
         self.Terrain_state = self.CaveStone()
         self.CaveSoil()
@@ -151,7 +146,36 @@ class Terrain:
         max_height = max(terrain_dict.values())
         print(f"地形最大隆起高度: {max_height}, 基准线高度: {base_line}")
         
-        for key, value in tqdm(terrain_dict.items(), desc='正在使世界变得凹凸'):
+        for key, value in tqdm(terrain_dict.items(), desc='正在使世界变得凹凸...'):
             line = base_line - value
             for j in range(line, base_line):
                 self.world[j][key] = 3
+
+class Dunes:
+    def __init__(self, world: list) -> None:
+        self.world = world
+        self.Start()
+
+    def Start():
+        self.TheDunes()
+
+    def DunesNumber(self) -> int:
+        return rd.randint(2, 3)
+
+    def SixPoints(self) -> tuple[int, int]:
+        left = 4200 // 6; right = 4200 - left
+        return left, right
+
+    def TheDunes(self, lotion: int = 0, spacing: int = 450, spacelist: list = []):
+        ranum = self.DunesNumber()
+        for _ in tqdm(range(ranum), desc='正在生成沙丘...'):
+            left, right = self.SixPoints()
+            while True:
+                location = rd.randint(left, right)
+                N = 0
+                for i in spacelist:
+                    if spacing < (location - i) or (loaction - i) < -spacing:
+                        N += 1
+                if N == len(spacelist):
+                    break
+
