@@ -37,6 +37,11 @@ class Terrain:
         else:
             print("世界初始化失败")
 
+    @classmethod
+    def Create(cls, world: list, Rstate: bool) -> tuple[list, bool]:
+        instance = cls(world, Rstate)
+        return instance.world, instance.Terrain_state
+
     def Start(self) -> None:
         self.Terrain_state = self.CaveStone()
         self.CaveSoil()
@@ -166,16 +171,16 @@ class Dunes:
         left = 4200 // 6; right = 4200 - left
         return left, right
 
-    def TheDunes(self, lotion: int = 0, spacing: int = 450, spacelist: list = []):
+    def TheDunes(self, lotion: int = 0, spacing: int = 450, spacelist: list = [], duneslenth: int = 100, duneswidth: int = 30):
         ranum = self.DunesNumber()
         for _ in tqdm(range(ranum), desc='正在生成沙丘...'):
             left, right = self.SixPoints()
             while True:
-                location = rd.randint(left, right)
+                location = rd.randint(left + duneslenth, right - duneslenth)
                 N = 0
                 for i in spacelist:
                     if spacing < (location - i) or (loaction - i) < -spacing:
                         N += 1
                 if N == len(spacelist):
                     break
-
+            spacelist.append(location)
