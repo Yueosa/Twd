@@ -161,26 +161,63 @@ class Dunes:
         self.world = world
         self.Start()
 
-    def Start():
+    @classmethod
+    def Create(cls, world: list) -> list:
+        instance = cls(world)
+        return instance.world
+
+    def Start(self):
         self.TheDunes()
 
     def DunesNumber(self) -> int:
         return rd.randint(2, 3)
 
     def SixPoints(self) -> tuple[int, int]:
-        left = 4200 // 6; right = 4200 - left
+        left = 4200 // 6
+        right = 4200 - left
         return left, right
 
-    def TheDunes(self, lotion: int = 0, spacing: int = 450, spacelist: list = [], duneslenth: int = 100, duneswidth: int = 30):
+    def TheDunes(self, spacing: int = 450, spacelist: list = [], duneslenth: int = 200, duneswidth: int = 60):
         ranum = self.DunesNumber()
         for _ in tqdm(range(ranum), desc='正在生成沙丘...'):
             left, right = self.SixPoints()
             while True:
                 location = rd.randint(left + duneslenth, right - duneslenth)
-                N = 0
-                for i in spacelist:
-                    if spacing < (location - i) or (loaction - i) < -spacing:
-                        N += 1
-                if N == len(spacelist):
+                valid = True
+                for existing in spacelist:
+                    if abs(location - existing) < spacing:
+                        valid = False
+                        break
+                if valid:
                     break
             spacelist.append(location)
+            self.soiltodunes(location, duneslenth, duneswidth)
+    
+    def soiltodunes(self, center: int, maxlength: int, maxwidth: int):
+        length = rd.randint(maxlength - (maxwidth // 2), maxlength)
+        radius = length // 2
+        left = center - radius
+        right = center + radius
+        
+        top = -1
+        
+        for x in range(left - 1, right + 1):
+            for y in range(len(self.world)):
+                if self.world[y][x] == 3:
+                    if y > top:
+                        top = y
+                    break
+        
+        if top == -1:
+            return
+        
+        bottom = top - maxwidth
+        if bottom < 0:
+            bottom = 0
+
+        print(f"沙丘区域: x=[{left}, {right}), 高度范围: {bottom}~{top}")
+        
+        for i in range(bottom, top):
+            for j in range(left, right):
+                if self.world[i][j] == 3:
+                    self.world[i][j] = 5
