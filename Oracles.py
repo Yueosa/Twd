@@ -159,7 +159,7 @@ class Dunes:
         return left, right
 
     "在地表生成沙丘"
-    def TheDunes(self, spacing: int = 400, spacelist: list = [], duneslenth: int = 300, duneswidth: int = 120):
+    def TheDunes(self, spacing: int = 400, spacelist: list = [], duneslenth: int = 300, duneswidth: int = 80):
         ranum = self.DunesNumber()
         for _ in tqdm(range(ranum), desc='正在生成沙丘...'):
             left, right = self.SixPoints()
