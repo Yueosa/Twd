@@ -10,7 +10,8 @@ import Weaving
 # 主程序
 Rworld, state = Oracles.Reset.Create()
 Tworld, Rstate= Oracles.Terrain.Create(Rworld, state)
+Dworld = Oracles.Dunes.Create(Tworld)
 
 weave = Weaving.Weave()
 
-weave.Save(Weaving.Save_image(weave, Tworld))
+weave.Save(Weaving.Save_image(weave, Dworld))
