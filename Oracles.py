@@ -34,7 +34,7 @@ class Terrain:
         self.Rstate = Rstate
         self.Terrain_state = False
         if self.Rstate:
-            print("世界初始化成功，开始生成地形...")
+            print("世界初始化成功,  开始生成地形...")
             self.Start()
         else:
             print("世界初始化失败")
@@ -132,9 +132,8 @@ class Terrain:
             for j in range(line, base_line):
                 self.world[j][key] = 3
 
-
 class Dunes:
-    "沙丘生成器, 生成2-3个沙丘"
+    "沙丘生成器, 生成沙丘"
     def __init__(self, world: list) -> None:
         self.world = world
         self.Start()
@@ -148,18 +147,18 @@ class Dunes:
     def Start(self):
         self.TheDunes()
 
-    "返回随机沙丘数"
+    "控制生成沙丘的个数"
     def DunesNumber(self) -> int:
-        return rd.randint(2, 4)
+        return rd.randint(2, 3)
 
-    "计算可以生成沙丘的范围"
+    "控制生成沙丘的范围"
     def SixPoints(self) -> tuple[int, int]:
         left = 4200 // 6
         right = 4200 - left
         return left, right
 
     "在地表生成沙丘"
-    def TheDunes(self, spacing: int = 400, spacelist: list = [], duneslenth: int = 300, duneswidth: int = 80):
+    def TheDunes(self, spacing: int = 450, spacelist: list = [], duneslenth: int = 300, duneswidth: int = 80):
         ranum = self.DunesNumber()
         for _ in tqdm(range(ranum), desc='正在生成沙丘...'):
             left, right = self.SixPoints()
