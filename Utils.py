@@ -233,7 +233,7 @@ def OraclesDunes_soil_to_dunes(world: list, center: int, maxlength: int, maxwidt
     radius = length // 2
     left = center - radius
     right = center + radius
-    
+
     top = float('inf')
     for x in range(left, right):
         for y in range(len(world)):
@@ -360,5 +360,63 @@ def Utils_dunes_smooth(world: list, left: int, right: int, bottom: int, top: int
         for y in range(bottom - smooth_radius, top + smooth_radius):
             if 0 <= x < len(world[0]) and 0 <= y < len(world):
                 world[y][x] = temp_world[y][x]
+
+    return world
+
+def OraclesOceanSand_soil_to_dunes(world: list, length: int, width: int):
+    """海洋沙生成函数
+    参数:
+        world: 世界矩阵
+        length: 生成区域长度
+        width: 生成区域宽度
+    返回:
+        处理后的世界矩阵
+    """
+    left = 0
+    right = 4200 - length
+
+# 处理左边
+    top = float('inf')
+    for x in range(left, length):
+        for y in range(len(world)):
+            if world[y][x] == 3:
+                if y < top:
+                    top = y
+                break
+    
+    if top == float('inf'):
+        return world
+
+    bottom = top + width
+    if bottom >= len(world):
+        bottom = len(world) - 1
+
+    print(f"海洋沙区域: x=[{left}, {length})-(", length - left, "), 高度范围: {top}~{bottom}-(", bottom - top, ")")
+    
+    for x in range(left, length):
+        for y in range(top, bottom):
+            world[y][x] = 7
+
+# 处理右边
+    top = float('inf')
+    for x in range(right, 4200):
+        for y in range(len(world)):
+            if world[y][x] == 3:
+                if y < top:
+                    top = y
+                break
+    
+    if top == float('inf'):
+        return world
+
+    bottom = top + width
+    if bottom >= len(world):
+        bottom = len(world) - 1
+
+    print(f"海洋沙区域: x=[{left}, {length})-(", length - left, "), 高度范围: {top}~{bottom}-(", bottom - top, ")")
+    
+    for x in range(right, 4200):
+        for y in range(top, bottom):
+            world[y][x] = 7
 
     return world

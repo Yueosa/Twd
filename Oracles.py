@@ -173,3 +173,27 @@ class Dunes:
                     break
             spacelist.append(location)
             self.world = Utils.OraclesDunes_soil_to_dunes(self.world, location, duneslenth, duneswidth)
+
+class OceanSand:
+    "海洋沙生成器, 生成海洋沙"
+    def __init__(self, world: list) -> None:
+        self.world = world
+        self.Start()
+
+    @classmethod
+    def Create(cls, world: list) -> list:
+        instance = cls(world)
+        return instance.world
+
+    def Start(self):
+        self.TheOceanSand()
+        self.TheStuff()
+
+    "生成海洋沙"
+    def TheOceanSand(self, space: int = 12):
+        length = 4200 // space
+        self.world = Utils.OraclesOceanSand_soil_to_dunes(self.world, length, length // 3)
+
+    "填充海洋沙高度"
+    def TheStuff(self):
+        pass
