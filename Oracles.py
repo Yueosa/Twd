@@ -3,6 +3,7 @@ import random as rd
 from tqdm import tqdm
 import time
 import Utils
+import math
 
 
 class Reset:
@@ -15,6 +16,7 @@ class Reset:
         instance = cls()
         return instance.world, instance.Reset_state
 
+    "生成 4200 * 1200 大小的世界"
     def CreateWorld(self) -> tuple[list, bool]:
         print("正在初始化世界...")
         self.world = [[1 for i in range(4200)] for j in range(1200)]
@@ -32,7 +34,7 @@ class Terrain:
         self.Rstate = Rstate
         self.Terrain_state = False
         if self.Rstate:
-            print("世界初始化成功，开始生成地形...")
+            print("世界初始化成功,  开始生成地形...")
             self.Start()
         else:
             print("世界初始化失败")
@@ -42,6 +44,7 @@ class Terrain:
         instance = cls(world, Rstate)
         return instance.world, instance.Terrain_state
 
+    "类方法启动函数"
     def Start(self) -> None:
         self.Terrain_state = self.CaveStone()
         self.CaveSoil()
@@ -49,6 +52,7 @@ class Terrain:
         self.UnderGroundStone()
         self.GroundSoil()
 
+    "向洞穴层填充石块"
     def CaveStone(self) -> bool:
         cave_world = self.world[420:]
         for i in tqdm(range(len(cave_world)), desc="正在向洞穴层填充石块..."):
@@ -63,6 +67,7 @@ class Terrain:
                 return False
         return True
 
+    "向洞穴层填充土块"
     def CaveSoil(self) -> list:
         cave_world = self.world[420:]
         list_length = len(cave_world[0]); list_width = len(cave_world)
@@ -74,42 +79,10 @@ class Terrain:
                 x_start = j * 100; x_stop = min((j + 1) * 100, list_length)
                 y_start = i * 100; y_stop = min((i + 1) * 100, list_width)
                 
-                new_matrix = self.DiffusionDot(matrix, 'Cave')
-                self.MatrixInsert(new_matrix, x_start, x_stop, y_start, y_stop, 'Cave')
+                new_matrix = Utils.OraclesTerrain_diffusion_dot(matrix, 'Cave')
+                self.world = Utils.OraclesTerrain_matrix_insert(self.world, new_matrix, x_start, x_stop, y_start, y_stop, 'Cave')
 
-    def DiffusionDot(self, matrix: list, type: str) -> list:
-        max_iterations = 10000; target_points = 5000; points_placed = 0; x = -1; y = -1
-        
-        for _ in range(max_iterations):
-            if points_placed >= target_points:
-                break
-            
-            if x == -1 and y == -1:
-                x = rd.randint(0, 99);  y = rd.randint(0, 99)
-
-            x, y = Utils.random_the_num(x, y)
-
-            if matrix[x][y] == 4 and type == 'Cave':
-                matrix[x][y] = 3; points_placed += 1
-            elif matrix[x][y] == 3 and  type == 'UnderGround':
-                matrix[x][y] = 4; points_placed += 1
-            
-            if Utils.should_return_false((points_placed / max_iterations) * 100):
-                break
-                
-        return matrix
-
-    def MatrixInsert(self, new_matrix: list, xt: int, xp: int, yt: int, yp: int, type :str) -> list:
-        if type == 'Cave':
-            for i in range(yt, yp):
-                for j in range(xt, xp):
-                    self.world[420 +i][j] = new_matrix[i - yt][j - xt]
-        elif type == 'UnderGround':
-            for i in range(yt, yp):
-                for j in range(xt, xp):
-                    self.world[300 +i][j] = new_matrix[i - yt][j - xt]
-
-
+    "向地下层填充土块"
     def UnderGroundSoil(self) -> bool:
         cave_world = self.world[300:420]
         for i in tqdm(range(len(cave_world)), desc="正在向地下层填充土块..."):
@@ -119,6 +92,7 @@ class Terrain:
         self.world[300:420] = cave_world
         return True
 
+    "向地下层填充石块"
     def UnderGroundStone(self) -> None:
         cave_world = self.world[300:420]
         list_length = len(cave_world[0]); list_width = len(cave_world)
@@ -130,11 +104,12 @@ class Terrain:
                 x_start = j * 100; x_stop = min((j + 1) * 100, list_length)
                 y_start = i * 100; y_stop = min((i + 1) * 100, list_width)
                 
-                new_matrix = self.DiffusionDot(matrix, 'UnderGround')
-                self.MatrixInsert(new_matrix, x_start, x_stop, y_start, y_stop, 'UnderGround')
+                new_matrix = Utils.OraclesTerrain_diffusion_dot(matrix, 'UnderGround')
+                self.world = Utils.OraclesTerrain_matrix_insert(self.world, new_matrix, x_start, x_stop, y_start, y_stop, 'UnderGround')
 
+    "生成地表土层"
     def GroundSoil(self) -> None:
-        soil_thickness = rd.randint(0, 30)
+        soil_thickness = rd.randint(10, 40)
         start_layer = 300 - soil_thickness
         end_layer = 300
 
@@ -144,14 +119,57 @@ class Terrain:
         
         self.GroundTerrain(soil_thickness)
 
+    "生成地表地形"
     def GroundTerrain(self, soil: int) -> None:
         base_line = 300 - soil
-        terrain_dict = Utils.theterrain(soil)
+        terrain_dict = Utils.OraclesTerrain_the_terrain(soil)
         
         max_height = max(terrain_dict.values())
         print(f"地形最大隆起高度: {max_height}, 基准线高度: {base_line}")
         
-        for key, value in tqdm(terrain_dict.items(), desc='正在使世界变得凹凸'):
+        for key, value in tqdm(terrain_dict.items(), desc='正在使世界变得凹凸...'):
             line = base_line - value
             for j in range(line, base_line):
                 self.world[j][key] = 3
+
+class Dunes:
+    "沙丘生成器, 生成沙丘"
+    def __init__(self, world: list) -> None:
+        self.world = world
+        self.Start()
+
+    @classmethod
+    def Create(cls, world: list) -> list:
+        instance = cls(world)
+        return instance.world
+
+    "类方法启动函数"
+    def Start(self):
+        self.TheDunes()
+
+    "控制生成沙丘的个数"
+    def DunesNumber(self) -> int:
+        return rd.randint(2, 3)
+
+    "控制生成沙丘的范围"
+    def SixPoints(self) -> tuple[int, int]:
+        left = 4200 // 6
+        right = 4200 - left
+        return left, right
+
+    "在地表生成沙丘"
+    def TheDunes(self, spacing: int = 450, spacelist: list = [], duneslenth: int = 300, duneswidth: int = 80):
+        ranum = self.DunesNumber()
+        for _ in tqdm(range(ranum), desc='正在生成沙丘...'):
+            left, right = self.SixPoints()
+            while True:
+                location = rd.randint(left + duneslenth, right - duneslenth)
+                valid = True
+                for existing in spacelist:
+                    if abs(location - existing) < spacing:
+                        valid = False
+                        break
+                if valid:
+                    break
+            spacelist.append(location)
+            self.world = Utils.OraclesDunes_soil_to_dunes(self.world, location, duneslenth, duneswidth)
