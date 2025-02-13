@@ -187,13 +187,8 @@ class OceanSand:
 
     def Start(self):
         self.TheOceanSand()
-        self.TheStuff()
 
     "生成海洋沙"
     def TheOceanSand(self, space: int = 12):
         length = 4200 // space
         self.world = Utils.OraclesOceanSand_soil_to_dunes(self.world, length, length // 2)
-
-    "填充海洋沙高度"
-    def TheStuff(self):
-        pass
