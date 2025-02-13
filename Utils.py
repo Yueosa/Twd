@@ -233,7 +233,7 @@ def OraclesDunes_soil_to_dunes(world: list, center: int, maxlength: int, maxwidt
     radius = length // 2
     left = center - radius
     right = center + radius
-    
+
     top = float('inf')
     for x in range(left, right):
         for y in range(len(world)):
@@ -360,5 +360,110 @@ def Utils_dunes_smooth(world: list, left: int, right: int, bottom: int, top: int
         for y in range(bottom - smooth_radius, top + smooth_radius):
             if 0 <= x < len(world[0]) and 0 <= y < len(world):
                 world[y][x] = temp_world[y][x]
+
+    return world
+
+def Utils_create_oceansand_shape(world: list, left: int, right: int, top: int, bottom: int, is_left_side: bool = True):
+    """海岸沙地形状生成函数
+    参数:
+        world: 世界矩阵
+        left, right: 区域横向范围
+        top, bottom: 区域纵向范围
+        is_left_side: 是否为左侧区域(True生成弧形/形状，False生成弧形\形状)
+    功能: 生成弧形的海岸沙地形状
+    """
+    width = right - left
+    height = bottom - top
+    
+    # 计算控制点
+    if is_left_side:
+        # 左侧弧形: |__/
+        p0 = (left, bottom)          # 起点
+        p1 = (left + width * 0.6, bottom)  # 控制点：向右偏移60%，保持底部高度
+        p2 = (right, top)           # 终点
+    else:
+        # 右侧弧形: \__|
+        p0 = (left, top)            # 起点
+        p1 = (right - width * 0.6, bottom)  # 控制点：向左偏移60%，底部
+        p2 = (right, bottom)         # 终点
+
+    # 遍历每一列
+    for x in range(left, right):
+        t = (x - left) / width
+        
+        # 使用二次贝塞尔曲线计算y坐标
+        y_curve = int((1 - t) * (1 - t) * p0[1] + 
+                     2 * (1 - t) * t * p1[1] + 
+                     t * t * p2[1])
+        
+        # 添加随机扰动
+        noise = rd.randint(-2, 2)
+        y_curve += noise
+        y_curve = max(top, min(bottom, y_curve))
+        
+        # 填充沙子
+        if is_left_side:
+            # 左侧：从顶部到曲线填充沙子
+            for y in range(top, y_curve):
+                if y < len(world) and world[y][x] == 3:
+                    world[y][x] = 5
+        else:
+            # 右侧：从曲线到底部填充沙子
+            for y in range(top, y_curve + 1):
+                if y < len(world) and world[y][x] == 3:
+                    world[y][x] = 5
+    
+    return world
+
+def OraclesOceanSand_soil_to_dunes(world: list, length: int, width: int):
+    """海洋沙生成函数
+    参数:
+        world: 世界矩阵
+        length: 左侧区域的长度
+        width: 生成区域宽度
+    返回:
+        处理后的世界矩阵
+    """
+    # 处理左侧区域 (0 to length)
+    left_start = 0
+    left_end = length
+    top = float('inf')
+
+    # 在x=length处寻找最高的土壤方块
+    check_x = length - 1  # 因为索引从0开始，所以要减1
+    for y in range(len(world)):
+        if world[y][check_x] == 3:
+            top = y
+            break
+    
+    if top != float('inf'):
+        bottom = min(top + width, len(world) - 1)
+        print(f"海洋沙区域1: x=[{left_start}, {left_end})-(", left_end - left_start, "), 高度范围: {top}~{bottom}-(", bottom - top, ")")
+        world = Utils_create_oceansand_shape(world, left_start, left_end, top, bottom, True)
+        world = Utils_dunes_smooth(world, left_start, left_end, bottom, top)
+        for x in range(left_start, left_end):
+            for y in range(0, top):
+                world[y][x] = 1
+
+    # 处理右侧区域 (4200-length to 4200)
+    right_start = 4200 - length
+    right_end = 4200
+    top = float('inf')
+
+    # 在x=(4200-length)处寻找最高的土壤方块
+    check_x = right_start  # 直接使用起始位置
+    for y in range(len(world)):
+        if world[y][check_x] == 3:
+            top = y
+            break
+    
+    if top != float('inf'):
+        bottom = min(top + width, len(world) - 1)
+        print(f"海洋沙区域2: x=[{right_start}, {right_end})-(", right_end - right_start, "), 高度范围: {top}~{bottom}-(", bottom - top, ")")
+        world = Utils_create_oceansand_shape(world, right_start, right_end, top, bottom, False)
+        world = Utils_dunes_smooth(world, right_start, right_end, bottom, top)
+        for x in range(right_start, right_end):
+            for y in range(0, top):
+                world[y][x] = 1
 
     return world
