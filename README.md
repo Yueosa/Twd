@@ -135,6 +135,11 @@ class Reset:
 
 ```
 
+###### | 生成效果 |
+
+![Twld]()
+
+
 ### 第二步 Terrain（地形）
 
 ###### 生成洞穴层地形
@@ -491,6 +496,10 @@ def Utils_terrain_smooth(terrain: dict, iterations: int = 3) -> dict:
 
 ```
 
+###### | 生成效果 |
+
+![Twld]()
+
 ### 第三步 Dunes（沙丘）
 
 ###### 选择沙丘位置
@@ -706,3 +715,144 @@ def Utils_dunes_smooth(world: list, left: int, right: int, bottom: int, top: int
     return world
 
 ```
+
+###### | 生成效果 |
+
+![Twld]()
+
+### 第四步 OceanSand（海洋沙）
+
+###### 选择位置和高度
++ 查找合适的高度作为 **基准线**
+
+###### 生成沙丘形状
++ 使用 **贝塞尔曲线** 、**随机扰动** 创建沙丘形状
++ 完全平滑 **基准线** 以上的部分
+
+###### | 生成地形使用的类 |
+``` python
+
+class OceanSand:
+    "海洋沙生成器, 生成海洋沙"
+    def __init__(self, world: list) -> None:
+        self.world = world
+        self.Start()
+
+    @classmethod
+    def Create(cls, world: list) -> list:
+        instance = cls(world)
+        return instance.world
+
+    def Start(self):
+        self.TheOceanSand()
+        self.TheStuff()
+
+    "生成海洋沙"
+    def TheOceanSand(self, space: int = 12):
+        length = 4200 // space
+        self.world = Utils.OraclesOceanSand_soil_to_dunes(self.world, length, length // 2)
+
+```
+
+###### | 生成地形使用的算法(Utils) |
+
+```python
+
+def Utils_create_oceansand_shape(world: list, left: int, right: int, top: int, bottom: int, is_left_side: bool = True):
+    """海岸沙地形状生成函数
+    参数:
+        world: 世界矩阵
+        left, right: 区域横向范围
+        top, bottom: 区域纵向范围
+        is_left_side: 是否为左侧区域(True生成弧形/形状，False生成弧形\形状)
+    功能: 生成弧形的海岸沙地形状
+    """
+    width = right - left
+    height = bottom - top
+    
+    if is_left_side:
+        p0 = (left, bottom)
+        p1 = (left + width * 0.6, bottom)
+        p2 = (right, top)
+    else:
+        p0 = (left, top)
+        p1 = (right - width * 0.6, bottom)
+        p2 = (right, bottom)
+
+    for x in range(left, right):
+        t = (x - left) / width
+        
+        y_curve = int((1 - t) * (1 - t) * p0[1] + 
+                     2 * (1 - t) * t * p1[1] + 
+                     t * t * p2[1])
+        
+        noise = rd.randint(-2, 2)
+        y_curve += noise
+        y_curve = max(top, min(bottom, y_curve))
+        
+        if is_left_side:
+            for y in range(top, y_curve):
+                if y < len(world) and world[y][x] == 3:
+                    world[y][x] = 5
+        else:
+            for y in range(top, y_curve + 1):
+                if y < len(world) and world[y][x] == 3:
+                    world[y][x] = 5
+    
+    return world
+
+def OraclesOceanSand_soil_to_dunes(world: list, length: int, width: int):
+    """海洋沙生成函数
+    参数:
+        world: 世界矩阵
+        length: 左侧区域的长度
+        width: 生成区域宽度
+    返回:
+        处理后的世界矩阵
+    """
+    left_start = 0
+    left_end = length
+    top = float('inf')
+
+    check_x = length - 1
+    for y in range(len(world)):
+        if world[y][check_x] == 3:
+            top = y
+            break
+    
+    if top != float('inf'):
+        bottom = min(top + width, len(world) - 1)
+        print(f"海洋沙区域1: x=[{left_start}, {left_end})-(", left_end - left_start, "), 高度范围: {top}~{bottom}-(", bottom - top, ")")
+        world = Utils_create_oceansand_shape(world, left_start, left_end, top, bottom, True)
+        world = Utils_dunes_smooth(world, left_start, left_end, bottom, top)
+        for x in range(left_start, left_end):
+            for y in range(0, top):
+                world[y][x] = 1
+
+    right_start = 4200 - length
+    right_end = 4200
+    top = float('inf')
+
+    check_x = right_start
+    for y in range(len(world)):
+        if world[y][check_x] == 3:
+            top = y
+            break
+    
+    if top != float('inf'):
+        bottom = min(top + width, len(world) - 1)
+        print(f"海洋沙区域2: x=[{right_start}, {right_end})-(", right_end - right_start, "), 高度范围: {top}~{bottom}-(", bottom - top, ")")
+        world = Utils_create_oceansand_shape(world, right_start, right_end, top, bottom, False)
+        world = Utils_dunes_smooth(world, right_start, right_end, bottom, top)
+        for x in range(right_start, right_end):
+            for y in range(0, top):
+                world[y][x] = 1
+
+    return world
+
+
+```
+
+###### | 生成效果 |
+
+![Twld]()
