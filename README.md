@@ -137,7 +137,7 @@ class Reset:
 
 ###### | 生成效果 |
 
-![Twld]()
+![Twld](https://github.com/Yueosa/Twd/raw/main/Plain/matrix_0001.png)
 
 
 ### 第二步 Terrain（地形）
@@ -498,7 +498,7 @@ def Utils_terrain_smooth(terrain: dict, iterations: int = 3) -> dict:
 
 ###### | 生成效果 |
 
-![Twld]()
+![Twld](https://github.com/Yueosa/Twd/raw/main/Plain/matrix_0002.png)
 
 ### 第三步 Dunes（沙丘）
 
@@ -718,7 +718,7 @@ def Utils_dunes_smooth(world: list, left: int, right: int, bottom: int, top: int
 
 ###### | 生成效果 |
 
-![Twld]()
+![Twld](https://github.com/Yueosa/Twd/raw/main/Plain/matrix_0003.png)
 
 ### 第四步 OceanSand（海洋沙）
 
@@ -855,4 +855,4 @@ def OraclesOceanSand_soil_to_dunes(world: list, length: int, width: int):
 
 ###### | 生成效果 |
 
-![Twld]()
+![Twld](https://github.com/Yueosa/Twd/raw/main/Plain/matrix_0004.png)
