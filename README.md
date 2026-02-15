@@ -1,4 +1,6 @@
-# 部分使用网站
+# 此项目已重构, 新项目地址: [Yueosa/Lwd](https://github.com/Yueosa/Lwd)
+
+---
 
 ## 用于查询资料和学习技术
 
